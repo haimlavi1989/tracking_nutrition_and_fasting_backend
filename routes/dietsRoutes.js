@@ -2,6 +2,8 @@ const express = require('express');
 const Router = express.Router();
 const dietController = require('../controllers/dietController');
 const authController = require('./../controllers/authController');
+const validationMiddleware = require('../validation/validationMiddleware');
+const dietValidation = require('../validation/dietValidation');
 
 Router.route('/')
   .get(
@@ -11,6 +13,8 @@ Router.route('/')
   .post(
      authController.protect,
      authController.restrictTo('user', 'admin'),
+     dietValidation.createDietValidationRules(),
+     validationMiddleware.validateRequest,
      dietController.createDiet);
 
 Router.route('/:id')
