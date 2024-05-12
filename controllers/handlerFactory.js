@@ -115,13 +115,18 @@ exports.getAllForSpecificUserID = (Model, popOptions) => async (req, res, next) 
       let filter = {};
       filter = { createdBy: req.user.id };
 
-      const fullResoults = await Model.find(filter).countDocuments();
+      //const fullResoults = await Model.find(filter).countDocuments();
+      const totalDocs = new APIFeatures(Model.find(filter), req.query)
+      .filter()
+      .limitFields()
+      // Count the total number of aviable documents for the pagination calc
+      const fullResoults = await totalDocs.query.countDocuments(); 
 
       const features = new APIFeatures(Model.find(filter), req.query)
         .filter()
         .sort()
         .limitFields()
-        .paginate();
+        .paginate(); 
       // const doc = await features.query.explain();
       let doc = features.query;
       if (popOptions) doc = doc.populate(popOptions);
