@@ -1,0 +1,39 @@
+services:
+  frontend:
+    build: ../tracking_nutrition_and_fasting
+    ports:
+      - "4200:80"
+    networks:
+      - app-network
+
+  mongo:
+    # using here mongo:4.4 becuse of my old comuter WARNING: MongoDB 5.0+ requires a CPU with AVX support, and your current system does not appear to have that
+    image: mongo:4.4
+    restart: always
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: 102030
+      MONGO_INITDB_DATABASE: tracking_nutrition_fasting
+      volumes:
+        - ./db_data/:/data/db/
+    networks:
+      - app-network
+
+  backend:
+    build: .
+    restart: always
+    env_file:
+      - ./config/.env.dev
+    ports:
+      - "3000:3000"
+    depends_on: [ "mongo" ]
+    networks:
+      - app-network
+    entrypoint: [ "npm", "start" ]
+
+networks:
+  app-network:
+    driver: bridge
